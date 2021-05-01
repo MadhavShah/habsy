@@ -17,6 +17,18 @@ class AddComment extends StatelessWidget {
   Widget build(BuildContext context) {
     // Create a CollectionReference called users that references the firestore collection
     CollectionReference comments = FirebaseFirestore.instance.collection('Comments');
+    CollectionReference posts = FirebaseFirestore.instance.collection('Post_Details');
+    
+    Future<void> updateComment(comment_id) {
+      // Call the user's CollectionReference to add a new user
+      return posts
+          .doc(post_id)
+          .update({
+            'Comment_List':Firestore.FieldValue.arrayUnion(comment_id)
+          })
+          .then((value) => print("User Added"))
+          .catchError((error) => print("Failed to add user: $error"));
+    }
 
     Future<void> addComment() {
       // Call the user's CollectionReference to add a new user
@@ -27,28 +39,15 @@ class AddComment extends StatelessWidget {
             'Description':comment_text,
             'isVisible':isVisible
           })
-          .then((value) =>{ print("User Added")
-                            comment_id = value.id;
-                            UpdateComment(this.user_id, this.post_id, this.comment_text, this.isVisible);
+          .then((value) =>{ print("User Added"),
+                            comment_id = value.id,
+                            updateComment(comment_id)
                             })
           .catchError((error) => print("Failed to add user: $error"));
     }
 
-    CollectionReference posts = FirebaseFirestore.instance.collection('Post_Details');
-    
-    Future<void> updateComment() {
-      // Call the user's CollectionReference to add a new user
-      return posts
-          .doc(post_id);
-          .update({
-            'Comment_List':FieldValue.arrayUnion(comment_id)
-          })
-          .then((value) => print("User Added"))
-          .catchError((error) => print("Failed to add user: $error"));
-    }
-
     return TextButton(
-      onPressed: addUser,
+      onPressed: addComment(),
       child: Text(
         "Add User",
       ),
