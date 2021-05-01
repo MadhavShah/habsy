@@ -5,10 +5,8 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 FirebaseAuth auth = FirebaseAuth.instance;
-String bid,pid;
-if (auth.currentUser != null) {
-  bid = auth.currentUser.uid;
-}
+String bid="";
+
 
 class AddProduct extends StatelessWidget {
   String product_Image;
@@ -17,7 +15,6 @@ class AddProduct extends StatelessWidget {
   String brand_Id = bid;
   String quantity_In_Stock;
   String description;
-  String product_Id;
   int no_of_Comments=0;
   int no_of_Likes=0;
   List<String> comments = [];
@@ -29,15 +26,18 @@ class AddProduct extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (auth.currentUser != null) {
+      bid = auth.currentUser.uid;
+    }
     // Create a CollectionReference called users that references the firestore collection
     CollectionReference product_Details = FirebaseFirestore.instance.collection('Product_Details');
     CollectionReference post_Details = FirebaseFirestore.instance.collection('Post_Details');
     
-    Future<void> addPost() {
+    Future<void> addPost(pid) {
       // Call the user's CollectionReference to add a new user
       return post_Details
           .add({
-            'Product_Id': product_Id, // John Doe
+            'Product_Id': pid, // John Doe
             'No_of_Comments': no_of_Comments, // Stokes and Sons
             'No_of_Likes': no_of_Likes,
             'Comments' : comments,
@@ -58,11 +58,7 @@ class AddProduct extends StatelessWidget {
             'Quantity_In_Stock' : quantity_In_Stock,
             'Description' : description // 42
           })
-          .then((value) => {
-                            print("User Added")
-                            this.product_Id=value.id;
-                            AddPost(this.product_Id, this.no_of_Comments, this.no_of_Likes,this.comments,this.likes);
-                            })
+          .then((value) => addPost(value.id))
           .catchError((error) => print("Failed to add user: $error"));
     }
 
@@ -73,19 +69,3 @@ class AddProduct extends StatelessWidget {
       ),
     );
   }
-
-  @override
-  Widget build(BuildContext context) {
-    // Create a CollectionReference called users that references the firestore collection
-    
-
-    
-
-    return TextButton(
-      onPressed: addPost,
-      child: Text(
-        "Add Post",
-      ),
-    );
-  }
-}
