@@ -12,7 +12,7 @@ class AddProduct extends StatelessWidget {
   String product_Image;
   String product_Name;
   int price;
-  String brand_Id = bid;
+  String brand_Id;
   String quantity_In_Stock;
   String description;
   int no_of_Comments=0;
@@ -22,7 +22,7 @@ class AddProduct extends StatelessWidget {
   // final String product
 
 
-  AddProduct(this.product_Name, this.product_Image, this.price,this.brand_Id,this.quantity_In_Stock,this.description);
+  AddProduct(this.product_Name, this.product_Image, this.price,this.brand_Id,this.quantity_In_Stock,this.description, this.no_of_Comments, this.no_of_Likes,this.comments,this.likes)
 
   @override
   Widget build(BuildContext context) {
@@ -33,6 +33,12 @@ class AddProduct extends StatelessWidget {
     CollectionReference product_Details = FirebaseFirestore.instance.collection('Product_Details');
     CollectionReference post_Details = FirebaseFirestore.instance.collection('Post_Details');
     
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String bid ="";
+    String pid = "";
+    if (auth.currentUser != null) {
+      bid = auth.currentUser.uid;
+    }    
     Future<void> addPost(pid) {
       // Call the user's CollectionReference to add a new user
       return post_Details
@@ -58,7 +64,11 @@ class AddProduct extends StatelessWidget {
             'Quantity_In_Stock' : quantity_In_Stock,
             'Description' : description // 42
           })
-          .then((value) => addPost(value.id))
+          .then((value) => {
+                            print("User Added"),
+                            pid =value.id,
+                            addPost(pid)
+                            })
           .catchError((error) => print("Failed to add user: $error"));
     }
 
@@ -69,3 +79,15 @@ class AddProduct extends StatelessWidget {
       ),
     );
   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     // Create a CollectionReference called users that references the firestore collection    
+//     return TextButton(
+//       onPressed: addPost,
+//       child: Text(
+//         "Add Post",
+//       ),
+//     );
+//   }
+}
